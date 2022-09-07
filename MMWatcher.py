@@ -10,6 +10,8 @@ import gi
 gi.require_version("ModemManager", "1.0")
 from gi.repository import Gio, GLib, GObject, ModemManager
 
+from Modem import Modem
+
 
 class MMWatcher:
     """
@@ -27,6 +29,8 @@ class MMWatcher:
         # IDs for added/removed signals
         self.object_added_id = 0
         self.object_removed_id = 0
+        # a dict holding modem path to objs
+        self.modem_objs = dict()
         # Follow availability of the ModemManager process
         self.available = False
         self.manager.connect("notify::name-owner", self.on_name_owner)
@@ -78,41 +82,18 @@ class MMWatcher:
         else:
             self.set_unavailable()
 
-    def on_modem_state_updated(self, modem, old, new, reason):
-        """
-        Modem state updated
-        """
-        print(
-            "[MMWatcher] %s: modem state updated: %s -> %s (%s) "
-            % (
-                modem.get_object_path(),
-                ModemManager.ModemState.get_string(old),
-                ModemManager.ModemState.get_string(new),
-                ModemManager.ModemStateChangeReason.get_string(reason),
-            )
-        )
-
     def on_object_added(self, manager, obj):
         """
         Object added.
         """
-        modem = obj.get_modem()
-        print(
-            "[MMWatcher] %s: modem managed by ModemManager [%s]: %s (%s)"
-            % (
-                obj.get_object_path(),
-                modem.get_equipment_identifier(),
-                modem.get_manufacturer(),
-                modem.get_model(),
-            )
-        )
-        if modem.get_state() == ModemManager.ModemState.FAILED:
-            print("[MMWatcher] %s: ignoring failed modem" % obj.get_object_path())
-        else:
-            modem.connect("state-changed", self.on_modem_state_updated)
+        obj_path = obj.get_object_path()
+        assert obj_path not in self.modem_objs
+        self.modem_objs[obj_path] = Modem(obj)
 
     def on_object_removed(self, manager, obj):
         """
         Object removed.
         """
-        print("[MMWatcher] %s: modem unmanaged by ModemManager" % obj.get_object_path())
+        obj_path = obj.get_object_path()
+        print("[MMWatcher] %s: modem unmanaged by ModemManager" % obj_path())
+        self.modem_objs.pop(obj_path)
