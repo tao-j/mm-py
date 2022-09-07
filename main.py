@@ -4,12 +4,15 @@
 # Copyright (C) 2022 Tao J <tao-j@outlook.com>
 
 from MMWatcher import MMWatcher
-from gi.repository import Gio, GLib, GObject, ModemManager
+
 import signal
 import sys
 from datetime import datetime
+
 import gi
-gi.require_version('ModemManager', '1.0')
+
+gi.require_version("ModemManager", "1.0")
+from gi.repository import Gio, GLib, GObject, ModemManager
 
 
 def signal_handler(loop):
@@ -23,10 +26,8 @@ def main():
 
     # Main loop
     main_loop = GLib.MainLoop()
-    GLib.unix_signal_add(
-        GLib.PRIORITY_HIGH, signal.SIGHUP, signal_handler, main_loop)
-    GLib.unix_signal_add(
-        GLib.PRIORITY_HIGH, signal.SIGTERM, signal_handler, main_loop)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGHUP, signal_handler, main_loop)
+    GLib.unix_signal_add(GLib.PRIORITY_HIGH, signal.SIGTERM, signal_handler, main_loop)
     try:
         main_loop.run()
     except KeyboardInterrupt:
