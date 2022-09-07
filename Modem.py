@@ -7,6 +7,7 @@ import gi
 gi.require_version("ModemManager", "1.0")
 from gi.repository import Gio, GLib, GObject, ModemManager
 
+from Messaging import Messaging
 
 class Modem:
     def __init__(self, obj):
@@ -42,6 +43,7 @@ class Modem:
         Messaging service can be enabled
         """
         print("registered")
+        self.mesg = Messaging(self.obj.get_modem_messaging())
 
     def set_mesg_unavailable(self):
         """

@@ -7,7 +7,6 @@ from MMWatcher import MMWatcher
 
 import signal
 import sys
-from datetime import datetime
 
 import gi
 
