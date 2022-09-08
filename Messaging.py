@@ -13,8 +13,15 @@ class Messaging:
     def __init__(self, mesg):
         self.mesg = mesg
 
-        for msg in mesg.list_sync():
+        self.on_mesg_added_signal()
+        # <ModemManager.ModemMessaging object at  (MMModemMessaging at )> /org/freedesktop/ModemManager1/SMS/7 True
+        mesg.connect("added", self.on_mesg_added_signal)
+
+    def on_mesg_added_signal(self, *argc):
+        # print(*argc)
+        for msg in self.mesg.list_sync():
             self.on_new_mesg(msg)
+            self.mesg.delete_sync(msg.get_path())
 
     def on_new_mesg(self, msg):
         print("got new mesg ----------")
